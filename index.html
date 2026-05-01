@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trader List - Pro Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505; --card-bg: #111111; --accent: #e5c07b; --success: #00f291;
+            --danger: #ff4d4d; --text-main: #ffffff; --text-dim: #888888;
+            --border: rgba(255, 255, 255, 0.08); --input-bg: #000000; --main-font: 'Inter', sans-serif;
+        }
+        [data-theme="light"] { --bg-color: #f4f7f9; --card-bg: #ffffff; --accent: #2563eb; --success: #10b981; --danger: #ef4444; --text-main: #0f172a; --text-dim: #64748b; --border: rgba(0, 0, 0, 0.06); --input-bg: #f8fafc; }
+        [data-theme="midnight"] { --bg-color: #020617; --card-bg: #0f172a; --accent: #818cf8; --success: #34d399; --danger: #fb7185; --text-main: #f8fafc; --text-dim: #94a3b8; --border: rgba(255, 255, 255, 0.05); --input-bg: #1e293b; }
+        [data-theme="blackgreen"] { --bg-color: #000000; --card-bg: #0a0a0a; --accent: #00ff41; --success: #00ff41; --danger: #ff003c; --text-main: #00ff41; --text-dim: #004411; --border: #003311; --input-bg: #050505; }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        body { font-family: var(--main-font); background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; justify-content: center; transition: 0.4s; }
+        .app-container { width: 100%; max-width: 500px; padding: 15px 15px 130px 15px; }
+        
+        header { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; }
+        .brand { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--accent); }
+        .controls { display: flex; align-items: center; gap: 8px; }
+        .btn-action { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .btn-danger { border-color: var(--danger); color: var(--danger); }
+        
+        .session-tracker { display: flex; gap: 8px; background: var(--card-bg); padding: 10px; border-radius: 14px; border: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+        .session-item { display: flex; align-items: center; gap: 6px; font-size: 0.55rem; font-weight: 700; color: var(--text-dim); white-space: nowrap; padding: 4px 10px; border-radius: 8px; background: var(--input-bg); }
+        .session-dot { width: 6px; height: 6px; border-radius: 50%; background: #333; }
+        .session-active { color: var(--text-main); border-color: var(--success); }
+        .session-active .session-dot { background: var(--success); box-shadow: 0 0 10px var(--success); }
+
+        .cal-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; margin-bottom: 15px; }
+        .cal-item { min-width: 60px; height: 72px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+        .cal-item.is-today { border-color: var(--accent); background: rgba(0,255,65,0.05); }
+        .cal-item.is-rest { opacity: 0.4; border-style: dashed; }
+
+        .config-card { background: var(--card-bg); border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, select { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 14px; border-radius: 12px; font-size: 0.9rem; font-family: 'JetBrains Mono'; width: 100%; outline: none; }
+        .field label { font-size: 0.55rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; display: block; }
+
+        .day-card { background: var(--card-bg); border-radius: 24px; margin-bottom: 15px; padding: 22px; border: 1px solid var(--border); position: relative; }
+        .day-header { border-left: 4px solid var(--accent); padding-left: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .rest-toggle { font-size: 0.6rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); color: var(--text-dim); }
+        .rest-active { background: var(--accent); color: #000; border-color: var(--accent); }
+        
+        .is-rest-day .layer-grid { display: none; }
+        .is-rest-day .rest-msg { display: block; }
+        .rest-msg { display: none; text-align: center; padding: 20px; font-style: italic; color: var(--text-dim); font-size: 0.8rem; }
+
+        .layer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+        .node { background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; padding: 15px 10px; text-align: center; cursor: pointer; }
+        .win { background: rgba(0, 255, 65, 0.1) !important; border-color: var(--success) !important; color: var(--success); }
+        .loss { background: rgba(255, 0, 60, 0.1) !important; border-color: var(--danger) !important; color: var(--danger); }
+
+        .footer-bar { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 470px; background: var(--card-bg); border: 1px solid var(--border); padding: 20px 24px; border-radius: 28px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); z-index: 1000; }
+        .footer-idr { font-weight: 800; font-size: 1.2rem; color: var(--accent); font-family: 'Outfit'; }
+    </style>
+</head>
+<body data-theme="dark">
+
+<div class="app-container">
+    <header>
+        <div class="top-row">
+            <div class="brand">Trader List</div>
+            <div class="controls">
+                <button class="btn-action btn-danger" onclick="clearJournal()">Reset</button>
+                <button class="btn-action" onclick="toggleTheme()">Mode</button>
+                <div id="clock" style="font-size: 0.8rem; color: var(--text-main); font-family: 'JetBrains Mono'; font-weight: 800; margin-left: 5px;">00:00:00</div>
+            </div>
+        </div>
+        <div class="session-tracker">
+            <div class="session-item" id="sess-asia"><div class="session-dot"></div> ASIA</div>
+            <div class="session-item" id="sess-london"><div class="session-dot"></div> LONDON</div>
+            <div class="session-item" id="sess-ny"><div class="session-dot"></div> NEW YORK</div>
+        </div>
+    </header>
+
+    <div class="cal-scroll" id="calendar-strip"></div>
+
+    <div class="config-card">
+        <div class="grid-inputs">
+            <div class="field" style="grid-column: span 2;">
+                <label>Market Asset</label>
+                <input type="text" id="cfg-market" value="XAU/USD" onchange="sync()">
+            </div>
+            <div class="field">
+                <label>Account Type</label>
+                <select id="cfg-acc-type" onchange="sync()">
+                    <option value="standard">Standard</option>
+                    <option value="cent">Cent</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Start Date</label>
+                <input type="date" id="start-date-input" onchange="sync()">
+            </div>
+            <div class="field">
+                <label>Capital (USD)</label>
+                <input type="number" id="cfg-cap" value="500" onchange="sync()">
+            </div>
+            <div class="field">
+                <label>Capital (IDR)</label>
+                <input type="text" id="cfg-idr-val" readonly style="opacity: 0.5;">
+            </div>
+            <div class="field">
+                <label>Layers</label>
+                <input type="number" id="cfg-layer" value="3" onchange="sync()">
+            </div>
+            <div class="field">
+                <label>Risk %</label>
+                <input type="number" id="cfg-risk" value="1" onchange="sync()">
+            </div>
+        </div>
+    </div>
+
+    <div id="main-journal"></div>
+
+    <div class="footer-bar">
+        <div>
+            <div style="font-size: 0.55rem; color: var(--text-dim); font-weight: 800;">TOTAL EQUITY (IDR)</div>
+            <div id="footer-idr" class="footer-idr">Rp 0</div>
+        </div>
+        <div style="text-align: right;">
+            <div id="stat-wr" style="font-size: 0.95rem; font-weight: 800; color: var(--success);">WR: 0%</div>
+            <div id="stat-profit" style="font-size: 0.65rem; color: var(--text-dim); font-family: 'JetBrains Mono';">+0.00</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const storageKey = 'TL_AUTO_V7';
+    const themes = ['dark', 'light', 'midnight', 'blackgreen'];
+    let currentThemeIdx = 0;
+
+    function toggleTheme() {
+        currentThemeIdx = (currentThemeIdx + 1) % themes.length;
+        document.body.setAttribute('data-theme', themes[currentThemeIdx]);
+        localStorage.setItem('TL_THEME_V7', themes[currentThemeIdx]);
+    }
+
+    function updateSessions() {
+        const now = new Date();
+        const hr = now.getHours();
+        document.getElementById('sess-asia').classList.toggle('session-active', (hr >= 7 && hr < 14));
+        document.getElementById('sess-london').classList.toggle('session-active', (hr >= 14 && hr < 22));
+        document.getElementById('sess-ny').classList.toggle('session-active', (hr >= 19 || hr < 3));
+        document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+    }
+
+    // FITUR BARU: CLEAR JURNAL
+    function clearJournal() {
+        if (confirm("Hapus seluruh data jurnal (Win/Loss dan Rest Day)? Pengaturan modal tidak akan dihapus.")) {
+            // Hapus semua data Win/Loss dan status Rest Day dari localStorage
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('TL_V7_') || key.startsWith('TL_REST_')) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+            render();
+            alert("Jurnal telah dibersihkan!");
+        }
+    }
+
+    function sync() {
+        const data = {
+            market: document.getElementById('cfg-market').value || 'XAU/USD',
+            accType: document.getElementById('cfg-acc-type').value,
+            cap: document.getElementById('cfg-cap').value,
+            risk: document.getElementById('cfg-risk').value,
+            layers: document.getElementById('cfg-layer').value,
+            startDate: document.getElementById('start-date-input').value
+        };
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        render();
+    }
+
+    function toggleRest(dayIdx) {
+        const currentVal = localStorage.getItem(`TL_REST_D${dayIdx}`);
+        if (currentVal === 'REST') localStorage.setItem(`TL_REST_D${dayIdx}`, 'WORK');
+        else localStorage.setItem(`TL_REST_D${dayIdx}`, 'REST');
+        render();
+    }
+
+    function render() {
+        const conf = JSON.parse(localStorage.getItem(storageKey)) || { market: 'XAU/USD', accType: 'standard', cap: 500, risk: 1, layers: 3, startDate: new Date().toISOString().split('T')[0] };
+        const idrRate = 16200;
+        const idrCapital = conf.accType === 'cent' ? (conf.cap / 100) * idrRate : conf.cap * idrRate;
+        document.getElementById('cfg-idr-val').value = `Rp ${idrCapital.toLocaleString('id-ID')}`;
+
+        const journal = document.getElementById('main-journal');
+        const cal = document.getElementById('calendar-strip');
+        journal.innerHTML = ''; cal.innerHTML = '';
+
+        const start = new Date(conf.startDate);
+        const today = new Date().setHours(0,0,0,0);
+        let totalP = 0, winC = 0, lossC = 0;
+        
+        const riskAmount = conf.cap * (conf.risk / 100);
+        const tpAmount = riskAmount * 2;
+
+        for(let d=0; d<30; d++) {
+            const currentDay = new Date(start);
+            currentDay.setDate(start.getDate() + d);
+            const isToday = currentDay.setHours(0,0,0,0) === today;
+            
+            const dayOfWeek = currentDay.getDay();
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+            const manualStatus = localStorage.getItem(`TL_REST_D${d}`);
+            const isRest = manualStatus ? (manualStatus === 'REST') : isWeekend;
+
+            const calItem = document.createElement('div');
+            calItem.className = `cal-item ${isToday ? 'is-today' : ''} ${isRest ? 'is-rest' : ''}`;
+            calItem.innerHTML = `<span style="font-size:0.5rem;color:var(--text-dim)">${currentDay.toLocaleDateString('id-ID',{weekday:'short'})}</span><span style="font-weight:800">${currentDay.getDate()}</span>`;
+            calItem.onclick = () => document.getElementById(`day-${d}`).scrollIntoView();
+            cal.appendChild(calItem);
+
+            const card = document.createElement('div');
+            card.className = `day-card ${isRest ? 'is-rest-day' : ''}`; card.id = `day-${d}`;
+            card.innerHTML = `
+                <div class="day-header">
+                    <div>
+                        <h3>DAY ${d+1} — ${currentDay.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</h3>
+                        <p style="font-size:0.6rem; color:var(--text-dim);">SL: -${riskAmount.toFixed(1)} | TP: +${tpAmount.toFixed(1)}</p>
+                    </div>
+                    <div class="rest-toggle ${isRest ? 'rest-active' : ''}" onclick="toggleRest(${d})">
+                        ${isRest ? 'REST DAY' : 'MARKET OPEN'}
+                    </div>
+                </div>
+                <div class="rest-msg">${isWeekend ? 'Akhir Pekan (Otomatis)' : 'Libur Manual'}</div>
+                <div class="layer-grid" id="grid-${d}"></div>
+            `;
+            journal.appendChild(card);
+
+            if (!isRest) {
+                for(let l=1; l<=conf.layers; l++) {
+                    const key = `TL_V7_${conf.market}_D${d}_L${l}`;
+                    const val = localStorage.getItem(key);
+                    const node = document.createElement('div');
+                    node.className = `node ${val === 'W' ? 'win' : val === 'L' ? 'loss' : ''}`;
+                    
+                    if(val === 'W') { totalP += tpAmount; winC++; node.innerHTML = `<span style="font-weight:800">+${tpAmount.toFixed(1)}</span>`; }
+                    else if(val === 'L') { totalP -= riskAmount; lossC++; node.innerHTML = `<span style="font-weight:800">-${riskAmount.toFixed(1)}</span>`; }
+                    else { node.innerHTML = `<span style="font-size:0.6rem; color:var(--text-dim)">LAYER ${l}</span>`; }
+
+                    node.onclick = () => {
+                        if(!val) localStorage.setItem(key, 'W');
+                        else if(val === 'W') localStorage.setItem(key, 'L');
+                        else localStorage.removeItem(key);
+                        render();
+                    };
+                    document.getElementById(`grid-${d}`).appendChild(node);
+                }
+            }
+        }
+
+        const profitUSD = conf.accType === 'cent' ? (totalP / 100) : totalP;
+        const totalEquityIDR = idrCapital + (profitUSD * idrRate);
+        
+        document.getElementById('stat-profit').innerText = `${profitUSD >= 0 ? '+' : ''}${profitUSD.toFixed(2)} USD`;
+        document.getElementById('stat-wr').innerText = `WR: ${(winC+lossC > 0 ? (winC/(winC+lossC)*100) : 0).toFixed(0)}%`;
+        document.getElementById('footer-idr').innerText = `Rp ${totalEquityIDR.toLocaleString('id-ID')}`;
+    }
+
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('TL_THEME_V7') || 'dark';
+        document.body.setAttribute('data-theme', savedTheme);
+        currentThemeIdx = themes.indexOf(savedTheme);
+        
+        const saved = JSON.parse(localStorage.getItem(storageKey));
+        if(saved) {
+            document.getElementById('cfg-market').value = saved.market;
+            document.getElementById('cfg-acc-type').value = saved.accType;
+            document.getElementById('cfg-cap').value = saved.cap;
+            document.getElementById('cfg-risk').value = saved.risk;
+            document.getElementById('cfg-layer').value = saved.layers;
+            document.getElementById('start-date-input').value = saved.startDate;
+        } else {
+            document.getElementById('start-date-input').value = new Date().toISOString().split('T')[0];
+            sync();
+        }
+        setInterval(updateSessions, 1000);
+        updateSessions();
+        render();
+    }
+</script>
+</body>
+</html>
