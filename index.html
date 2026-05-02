@@ -2,11 +2,14 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Trader Journal V.2.0</title>
     <style>
         /* THEME DEFINITIONS */
-        :root { --bg: #050505; --card: #111111; --accent: #3b82f6; --text: #ffffff; --dim: #888888; --border: rgba(255,255,255,0.1); --success: #00f291; --danger: #ff4d4d; }
+        :root { 
+            --bg: #050505; --card: #111111; --accent: #3b82f6; --text: #ffffff; 
+            --dim: #888888; --border: rgba(255,255,255,0.1); --success: #00f291; --danger: #ff4d4d; 
+        }
         
         [data-theme="black-blue"] { --bg: #020617; --card: #0f172a; --accent: #3b82f6; --text: #f8fafc; --dim: #94a3b8; --border: rgba(59,130,246,0.2); }
         [data-theme="white-blue"] { --bg: #f8fafc; --card: #ffffff; --accent: #2563eb; --text: #0f172a; --dim: #64748b; --border: rgba(0,0,0,0.05); }
@@ -15,66 +18,83 @@
         [data-theme="golden-black"] { --bg: #0c0a09; --card: #1c1917; --accent: #d97706; --text: #fafaf9; --dim: #78716c; --border: #44403c; }
         [data-theme="white-black"] { --bg: #ffffff; --card: #f5f5f5; --accent: #000000; --text: #000000; --dim: #737373; --border: #d4d4d4; }
 
-        * { box-sizing: border-box; transition: 0.2s; }
+        * { box-sizing: border-box; transition: background 0.2s, color 0.2s; -webkit-tap-highlight-color: transparent; }
         
-        /* Font San Francisco Bold System */
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             font-weight: 700;
-            background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; 
+            background: var(--bg); color: var(--text); 
+            margin: 0; padding: 15px; 
+            padding-top: env(safe-area-inset-top, 15px);
+            display: flex; justify-content: center; 
         }
 
-        .app { width: 100%; max-width: 550px; padding-bottom: 180px; }
+        .app { width: 100%; max-width: 500px; padding-bottom: 160px; }
 
         /* HEADER AREA */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .title-group { display: flex; align-items: baseline; gap: 8px; }
-        h1 { font-weight: 900; font-size: 1.7rem; margin: 0; letter-spacing: -1px; }
-        .version { font-size: 0.65rem; color: var(--accent); opacity: 0.8; }
-        .emoji-v { font-size: 1.5rem; margin-left: 5px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+        .title-group { display: flex; align-items: baseline; gap: 5px; flex-shrink: 1; }
+        h1 { font-weight: 900; font-size: 1.4rem; margin: 0; letter-spacing: -0.5px; white-space: nowrap; }
+        .version { font-size: 0.6rem; color: var(--accent); opacity: 0.8; }
         
-        .header-actions { display: flex; align-items: center; gap: 10px; }
-        .btn-clear { background: var(--danger); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.7rem; font-weight: 900; cursor: pointer; }
-        .theme-sel { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 7px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; outline: none; }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-clear { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 900; cursor: pointer; }
+        .theme-sel { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 7px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; outline: none; max-width: 100px; }
 
         /* USER NAME BAR */
-        .user-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .user-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
         .user-bar span { font-size: 0.7rem; color: var(--dim); white-space: nowrap; }
         .user-bar input { background: transparent; border: none; color: var(--accent); font-weight: 900; width: 100%; outline: none; font-size: 0.9rem; font-family: inherit; }
 
-        /* BAR BOXES */
-        .bar { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 12px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .field { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 0.65rem; font-weight: 900; color: var(--dim); text-transform: uppercase; letter-spacing: 0.6px; }
-        select, input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 800; font-family: inherit; outline: none; }
+        /* BOX COMPONENTS */
+        .bar { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .full-col { grid-column: span 2; }
+        
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 0.6rem; font-weight: 900; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input { 
+            background: var(--bg); border: 1px solid var(--border); color: var(--text); 
+            padding: 10px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; 
+            font-family: inherit; outline: none; width: 100%; -webkit-appearance: none;
+        }
         select:focus, input:focus { border-color: var(--accent); }
 
-        /* MARKET SESSIONS */
-        .tags { display: flex; gap: 8px; grid-column: span 2; margin-top: 12px; }
-        .tag { flex: 1; text-align: center; font-size: 0.7rem; padding: 10px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--dim); font-weight: 900; }
-        .tag.active { color: var(--accent); border-color: var(--accent); background: rgba(59,130,246,0.15); box-shadow: 0 0 15px rgba(59,130,246,0.1); }
+        /* TAGS (SESSIONS) */
+        .tags { display: flex; gap: 5px; margin-top: 5px; }
+        .tag { flex: 1; text-align: center; font-size: 0.6rem; padding: 8px 4px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); color: var(--dim); font-weight: 900; }
+        .tag.active { color: var(--accent); border-color: var(--accent); background: rgba(59,130,246,0.1); }
 
         /* CONVERTER */
-        .conv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; margin-top: 5px; }
-        .conv-item { background: var(--bg); padding: 12px; border-radius: 14px; border: 1px solid var(--border); }
-        .conv-val { font-size: 0.8rem; font-weight: 900; color: var(--accent); margin-top: 4px; }
+        .conv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-top: 8px; }
+        .conv-item { background: var(--bg); padding: 10px 5px; border-radius: 12px; border: 1px solid var(--border); }
+        .conv-val { font-size: 0.75rem; font-weight: 900; color: var(--accent); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; }
 
-        /* JOURNAL AREA */
-        .day-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 12px; }
-        .day-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-left: 5px solid var(--accent); padding-left: 15px; }
-        .node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
-        .node { background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 14px; text-align: center; font-size: 0.8rem; cursor: pointer; font-weight: 900; }
-        .win { color: var(--success); border-color: var(--success); background: rgba(0,242,145,0.1); }
-        .loss { color: var(--danger); border-color: var(--danger); background: rgba(255,77,77,0.1); }
-
-        /* FOOTER SIGNATURE */
-        .bottom-thanks { text-align: center; padding: 40px 20px; margin-top: 20px; }
-        .thanks-msg { font-size: 0.9rem; font-weight: 900; color: var(--text); opacity: 0.9; margin-bottom: 6px; }
-        .konsisten-msg { font-size: 0.75rem; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        /* JOURNAL CARDS */
+        .day-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 10px; }
+        .day-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-left: 4px solid var(--accent); padding-left: 12px; }
+        .node-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .node { background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 12px; text-align: center; font-size: 0.75rem; cursor: pointer; font-weight: 900; }
+        .win { color: var(--success); border-color: var(--success); background: rgba(0,242,145,0.05); }
+        .loss { color: var(--danger); border-color: var(--danger); background: rgba(255,77,77,0.05); }
 
         /* STICKY FOOTER */
-        .footer-nav { position: fixed; bottom: 20px; width: calc(100% - 30px); max-width: 520px; background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 15px 50px rgba(0,0,0,0.6); z-index: 100; backdrop-filter: blur(10px); }
+        .footer-nav { 
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 30px); max-width: 470px; 
+            background: var(--card); border: 1px solid var(--border); border-radius: 20px; 
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; backdrop-filter: blur(10px);
+            padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+        }
+
+        .bottom-thanks { text-align: center; padding: 20px 0; opacity: 0.6; font-size: 0.7rem; }
+
+        /* RESPONSIVE DESKTOP */
+        @media (min-width: 600px) {
+            .node-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+        }
     </style>
 </head>
 <body data-theme="black-blue">
@@ -83,141 +103,111 @@
     <header>
         <div class="title-group">
             <h1>Trader Journal</h1>
-            <span class="version">V.2.0</span>
-            <span class="emoji-v">📈</span>
+            <span class="version">V.2.0 📈</span>
         </div>
         <div class="header-actions">
             <button class="btn-clear" onclick="resetAll()">Clear</button>
             <select class="theme-sel" onchange="document.body.setAttribute('data-theme', this.value)">
-                <option value="black-blue">Black Blue</option>
-                <option value="white-blue">White Blue</option>
-                <option value="black-dark-green">Black Green</option>
-                <option value="white-green">White Green</option>
-                <option value="golden-black">Golden Black</option>
-                <option value="white-black">White Black</option>
+                <option value="black-blue">Dark Blue</option>
+                <option value="white-blue">Light Blue</option>
+                <option value="black-dark-green">Dark Green</option>
+                <option value="white-green">Light Green</option>
+                <option value="golden-black">Gold</option>
+                <option value="white-black">Mono</option>
             </select>
         </div>
     </header>
 
-    <!-- BAR 0: User Name -->
     <div class="user-bar">
         <span>TRADER:</span>
-        <input type="text" id="user-name" placeholder="Enter name here..." onkeyup="saveUser()">
+        <input type="text" id="user-name" placeholder="Enter name..." onkeyup="saveUser()">
     </div>
 
-    <!-- BAR 1: Market Memory & Settings -->
     <div class="bar">
         <div class="grid">
-            <div class="field" style="grid-column: span 2;">
-                <label>Multi Market Memory</label>
+            <div class="field full-col">
+                <label>Market Selection</label>
                 <select id="asset" onchange="loadAsset()">
-                    <optgroup label="Major Pairs">
-                        <option value="EURUSD">EUR/USD (Euro / Dollar)</option>
-                        <option value="GBPUSD">GBP/USD (Pound / Dollar)</option>
-                        <option value="USDJPY">USD/JPY (Dollar / Yen)</option>
-                        <option value="USDCHF">USD/CHF (Dollar / Franc)</option>
-                        <option value="AUDUSD">AUD/USD (Aussie / Dollar)</option>
-                        <option value="USDCAD">USD/CAD (Loonie / Dollar)</option>
-                        <option value="NZDUSD">NZD/USD (Kiwi / Dollar)</option>
-                    </optgroup>
-                    <optgroup label="Minor / Cross Pairs">
-                        <option value="EURGBP">EUR/GBP</option>
-                        <option value="EURJPY">EUR/JPY</option>
-                        <option value="GBPJPY">GBP/JPY</option>
-                        <option value="AUDNZD">AUD/NZD</option>
-                    </optgroup>
-                    <optgroup label="Exotic Pairs">
-                        <option value="USDSGD">USD/SGD</option>
-                        <option value="USDTRY">USD/TRY</option>
-                    </optgroup>
                     <optgroup label="Commodity">
-                        <option value="XAUUSD" selected>XAU/USD (Gold) ✨</option>
-                        <option value="WTIUSD">WTI/USD (Oil)</option>
+                        <option value="XAUUSD" selected>XAU/USD (Gold)</option>
+                    </optgroup>
+                    <optgroup label="Major Pairs">
+                        <option value="EURUSD">EUR/USD</option>
+                        <option value="GBPUSD">GBP/USD</option>
+                        <option value="USDJPY">USD/JPY</option>
                     </optgroup>
                 </select>
             </div>
             <div class="field">
                 <label>Time Zone</label>
                 <select id="tz" onchange="updateClock()">
-                    <option value="Asia/Jakarta">WIB (GMT+7)</option>
-                    <option value="Asia/Makassar">WITA (GMT+8)</option>
-                    <option value="Asia/Jayapura">WIT (GMT+9)</option>
+                    <option value="Asia/Jakarta">WIB</option>
+                    <option value="Asia/Makassar">WITA</option>
+                    <option value="Asia/Jayapura">WIT</option>
                 </select>
             </div>
             <div class="field">
                 <label>Start Date</label>
                 <input type="date" id="start-date" onchange="sync()">
             </div>
-            <div class="tags">
-                <div id="tag-asia" class="tag">ASIA ⛩️</div>
-                <div id="tag-london" class="tag">LONDON 🏛️</div>
-                <div id="tag-ny" class="tag">NEW YORK 🗽</div>
+            <div class="full-col">
+                <div class="tags">
+                    <div id="tag-asia" class="tag">ASIA ⛩️</div>
+                    <div id="tag-london" class="tag">LONDON 🏛️</div>
+                    <div id="tag-ny" class="tag">NY 🗽</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- BAR 2: Capital & Risk Management -->
     <div class="bar">
         <div class="grid">
             <div class="field">
                 <label>Account Type</label>
                 <select id="acc-type" onchange="sync()">
-                    <option value="standard">Standard Account</option>
-                    <option value="cent">Cent Account</option>
+                    <option value="standard">Standard</option>
+                    <option value="cent">Cent</option>
                 </select>
             </div>
             <div class="field">
-                <label id="label-cap">Capital (USD)</label>
+                <label id="label-cap">Capital</label>
                 <input type="number" id="cap" value="1000" onchange="sync()">
             </div>
             <div class="field">
-                <label>Layers (Jumlah)</label>
+                <label>Layers</label>
                 <input type="number" id="layers" value="3" onchange="sync()">
             </div>
             <div class="field">
-                <label>RR (1 : X)</label>
+                <label>RR (1:X)</label>
                 <input type="number" id="rr" value="2" onchange="sync()">
             </div>
         </div>
     </div>
 
-    <!-- BAR 3: Conversion Bar -->
     <div class="bar">
-        <label>Balance Converter (USD Base)</label>
+        <label>Balance Converter</label>
         <div class="conv-grid">
-            <div class="conv-item">
-                <label>IDR 🇮🇩</label>
-                <div id="c-idr" class="conv-val">0</div>
-            </div>
-            <div class="conv-item">
-                <label>JPY 🇯🇵</label>
-                <div id="c-jpy" class="conv-val">0</div>
-            </div>
-            <div class="conv-item">
-                <label>AUD 🇦🇺</label>
-                <div id="c-aud" class="conv-val">0</div>
-            </div>
+            <div class="conv-item"><label>IDR</label><div id="c-idr" class="conv-val">0</div></div>
+            <div class="conv-item"><label>JPY</label><div id="c-jpy" class="conv-val">0</div></div>
+            <div class="conv-item"><label>AUD</label><div id="c-aud" class="conv-val">0</div></div>
         </div>
     </div>
 
-    <!-- JOURNAL LIST -->
     <div id="journal-render"></div>
 
-    <!-- SIGNATURE BOTTOM -->
     <div class="bottom-thanks">
-        <div class="thanks-msg">Thanks for using this website 🤖</div>
-        <div class="konsisten-msg">Keep konsisten anti nafsu 🔥</div>
+        <b>Thanks for using Trader Journal 🤖</b><br>
+        KEEP KONSISTEN & DISIPLIN 🔥
     </div>
 
-    <!-- STICKY FOOTER INFO -->
     <div class="footer-nav">
         <div>
-            <label>Real Equity</label>
-            <div id="foot-bal" style="font-weight: 900; font-size: 1.2rem; color: var(--accent);">0.00</div>
+            <label>Equity (USD)</label>
+            <div id="foot-bal" style="font-weight: 900; font-size: 1.1rem; color: var(--accent);">0.00</div>
         </div>
         <div style="text-align: right;">
-            <div id="clock" style="font-family: monospace; font-weight: 900; font-size: 1rem; letter-spacing: 1px;">00:00:00</div>
-            <div id="foot-stat" style="font-size: 0.65rem; color: var(--dim); font-weight: 900; margin-top: 2px;">WR: 0%</div>
+            <div id="clock" style="font-family: monospace; font-weight: 900; font-size: 0.9rem;">00:00:00</div>
+            <div id="foot-stat" style="font-size: 0.6rem; color: var(--dim); font-weight: 900; margin-top: 2px;">WR: 0%</div>
         </div>
     </div>
 </div>
@@ -302,8 +292,8 @@
             card.className = 'day-card';
             card.innerHTML = `
                 <div class="day-head">
-                    <span style="font-weight:900; font-size:0.9rem;">DAY ${d+1} <small style="color:var(--dim); margin-left:5px;">${date.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></span>
-                    <span style="font-family:monospace; font-size:0.85rem; font-weight:900" class="${dayPnL>=0?'win':'loss'}">${dayPnL>=0?'+':''}${dayPnL.toFixed(2)}</span>
+                    <span style="font-size:0.8rem;">DAY ${d+1} <small style="color:var(--dim);">${date.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></span>
+                    <span style="font-size:0.8rem;" class="${dayPnL>=0?'win':'loss'}">${dayPnL>=0?'+':''}${dayPnL.toFixed(2)}</span>
                 </div>
                 <div class="node-grid">${nodes.join('')}</div>
             `;
@@ -313,12 +303,12 @@
         const totalEquity = parseFloat(cfg.cap) + profit;
         const usdValue = isCent ? totalEquity / 100 : totalEquity;
 
-        document.getElementById('foot-bal').innerText = `${usdValue.toFixed(2)} USD`;
-        document.getElementById('foot-stat').innerText = `WIN RATE: ${(wCount+lCount>0?(wCount/(wCount+lCount)*100).toFixed(0):0)}% | PnL: ${profit.toFixed(2)}`;
+        document.getElementById('foot-bal').innerText = `${usdValue.toFixed(2)}`;
+        document.getElementById('foot-stat').innerText = `WR: ${(wCount+lCount>0?(wCount/(wCount+lCount)*100).toFixed(0):0)}% | PNL: ${profit.toFixed(1)}`;
         
-        document.getElementById('c-idr').innerText = `Rp ${(usdValue * RATES.IDR).toLocaleString('id-ID')}`;
-        document.getElementById('c-jpy').innerText = `¥ ${(usdValue * RATES.JPY).toLocaleString('ja-JP')}`;
-        document.getElementById('c-aud').innerText = `A$ ${(usdValue * RATES.AUD).toLocaleString('en-AU')}`;
+        document.getElementById('c-idr').innerText = (usdValue * RATES.IDR).toLocaleString('id-ID', {maximumFractionDigits:0});
+        document.getElementById('c-jpy').innerText = (usdValue * RATES.JPY).toLocaleString('ja-JP', {maximumFractionDigits:0});
+        document.getElementById('c-aud').innerText = (usdValue * RATES.AUD).toFixed(1);
     }
 
     function mark(k) {
@@ -330,7 +320,7 @@
     }
 
     function resetAll() {
-        if(confirm("🚨 RESET DATA UNTUK MARKET INI?")) {
+        if(confirm("Reset data untuk market ini?")) {
             const asset = document.getElementById('asset').value;
             Object.keys(localStorage).forEach(k => { if(k.includes(STORAGE_KEY + asset)) localStorage.removeItem(k); });
             loadAsset();
